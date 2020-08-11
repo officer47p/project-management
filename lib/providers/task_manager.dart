@@ -15,16 +15,36 @@ class Task extends ChangeNotifier {
     this.description,
     this.timeToFinish,
     this.status = TaskStatus.Open,
-  }) {
-    taskId = DateTime.now().toIso8601String();
-  }
+    this.taskId,
+  });
+  //  {
+  //   taskId = DateTime.now().toIso8601String();
+  // }
 }
 
 class TaskManager extends ChangeNotifier {
-  List<Task> _tasks = [];
+  List<Task> _tasks = [
+    Task(
+      taskId: "dnsj",
+      title: "Check the Documentation",
+      description:
+          "Check the Documentation and make sure that all the parameters are placed correctly",
+      status: TaskStatus.Open,
+      taskOwner: "Parsa",
+      timeToFinish: 1.5,
+    )
+  ];
 
   List<Task> get tasks {
     return _tasks;
+  }
+
+  List<Task> getTasksByStatus(TaskStatus status) {
+    return _tasks.where((task) => task.status == status).toList();
+  }
+
+  Task getSingleTask(String taskId) {
+    return _tasks.firstWhere((task) => task.taskId == taskId);
   }
 
   void addTask({

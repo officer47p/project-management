@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
+import '../providers/task_manager.dart';
+
 class TaskCard extends StatelessWidget {
+  final String taskId;
+  TaskCard(this.taskId);
   @override
   Widget build(BuildContext context) {
+    final task = Provider.of<TaskManager>(context).getSingleTask(taskId);
     return Container(
       margin: EdgeInsets.all(10),
       width: double.infinity,
@@ -26,7 +33,7 @@ class TaskCard extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  "Check The You Track Documentation.",
+                  task.title,
                   style: TextStyle(
                     color: Colors.black,
                     fontFamily: "Ubuntu",
@@ -44,7 +51,7 @@ class TaskCard extends StatelessWidget {
             height: 20,
           ),
           Text(
-            "Check The You Track Documentation. Everything should look exactly alike",
+            task.description,
             style: TextStyle(
               color: Colors.black.withOpacity(0.6),
               fontFamily: "Ubuntu",
@@ -80,7 +87,7 @@ class TaskCard extends StatelessWidget {
                             color: Colors.orange.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(10)),
                         child: Text(
-                          "Jack",
+                          task.taskOwner,
                           style: TextStyle(
                             color: Colors.black.withOpacity(0.6),
                             fontFamily: "Ubuntu",
@@ -94,7 +101,9 @@ class TaskCard extends StatelessWidget {
               ),
               Chip(
                 avatar: Icon(Icons.timelapse),
-                label: Text("1H"),
+                label: Text(
+                  task.timeToFinish.toString(),
+                ),
               )
             ],
           ),
