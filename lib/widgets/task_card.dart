@@ -92,14 +92,30 @@ class TaskCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Flexible(
-                child: Chip(
-                  avatar: Icon(Icons.timelapse),
-                  label: Text("1H"),
-                ),
+              Chip(
+                avatar: Icon(Icons.timelapse),
+                label: Text("1H"),
               )
             ],
-          )
+          ),
+          // Row(
+          //   // textBaseline: TextBaseline.ideographic,
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   children: [
+          //     Text(
+          //       "Discussions",
+          //       style: TextStyle(
+          //         color: Colors.black.withOpacity(0.6),
+          //         fontFamily: "Ubuntu",
+          //         fontSize: 15,
+          //       ),
+          //     ),
+          //     IconButton(
+          //       icon: Icon(Icons.expand_more),
+          //       onPressed: () {},
+          //     )
+          //   ],
+          // )
         ],
       ),
     );

@@ -58,19 +58,6 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {},
                   color: Colors.white,
                 )
-                // Ink(
-                //   color: Colors.white,
-                //   child: InkWell(
-                //     onTap: () {},
-                //     child: Icon(
-                //       Icons.add,
-                //       color: Colors.white,
-                //     ),
-                //   ),
-                // )
-                // IconButton(
-                //     icon:
-                //     onPressed: () {})
               ],
             ),
             SizedBox(
