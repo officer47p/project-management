@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../enums.dart';
 
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,19 @@ import '../providers/task_manager.dart';
 class TaskCard extends StatelessWidget {
   final String taskId;
   TaskCard(this.taskId);
+
+  Color statusColor(TaskStatus status) {
+    if (status == TaskStatus.Open) {
+      return Colors.green;
+    } else if (status == TaskStatus.InProgress) {
+      return Colors.amber;
+    } else if (status == TaskStatus.Done) {
+      return Colors.blue;
+    } else {
+      return Colors.red;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final task = Provider.of<TaskManager>(context).getSingleTask(taskId);
@@ -100,10 +114,17 @@ class TaskCard extends StatelessWidget {
                 ),
               ),
               Chip(
-                avatar: Icon(Icons.timelapse),
+                avatar: Icon(
+                  Icons.timelapse,
+                  color: Colors.white,
+                ),
                 label: Text(
                   task.timeToFinish.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
+                backgroundColor: statusColor(task.status),
               )
             ],
           ),

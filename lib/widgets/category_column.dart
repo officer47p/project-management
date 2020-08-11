@@ -63,7 +63,12 @@ class CategoryColumn extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100)),
                   child: Icon(Icons.add),
-                  onPressed: () {},
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Container(),
+                    );
+                  },
                   color: Colors.white,
                 )
               ],
