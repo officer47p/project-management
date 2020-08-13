@@ -34,7 +34,7 @@ class TaskManager extends ChangeNotifier {
       timeToFinish: 1.5,
     ),
     Task(
-      taskId: "dnsj",
+      taskId: "jjbkbk",
       title: "Check the Documentation",
       description:
           "Check the Documentation and make sure that all the parameters are placed correctly",
@@ -90,5 +90,11 @@ class TaskManager extends ChangeNotifier {
 
   List<Task> get doneTasks {
     return _tasks.where((task) => task.status == TaskStatus.Done);
+  }
+
+  void changeTaskStatus(String taskId, TaskStatus status) {
+    final int index = _tasks.indexWhere((task) => task.taskId == taskId);
+    _tasks[index].status = status;
+    notifyListeners();
   }
 }

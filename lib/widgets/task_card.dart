@@ -152,14 +152,14 @@ class _TaskCardState extends State<TaskCard> {
         final padding = const EdgeInsets.all(10);
         return Padding(
           padding: padding,
-          child: Draggable<String>(
+          child: Draggable<Task>(
             // onDragStarted: () => setState(() {
             //   _isBeingDragged = true;
             // }),
             // onDragCompleted: stopDrag,
             // onDragEnd: stopDrag,
             // onDraggableCanceled: stopDrag,
-            data: task.taskId,
+            data: task,
             child: _cardBuilder(task),
             childWhenDragging: Container(),
             feedback: DecoratedBox(

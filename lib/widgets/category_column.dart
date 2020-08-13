@@ -38,6 +38,7 @@ class CategoryColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final taskManager = Provider.of<TaskManager>(context);
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(10),
@@ -89,13 +90,20 @@ class CategoryColumn extends StatelessWidget {
                     )
                   ],
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: Provider.of<TaskManager>(context)
-                        .getTasksByStatus(type)
-                        .map((task) => TaskCard(task.taskId))
-                        .toList(),
-                  ),
+                child: DragTarget<Task>(
+                  builder: (context, candidateData, rejectedData) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: taskManager
+                            .getTasksByStatus(type)
+                            .map((task) => TaskCard(task.taskId))
+                            .toList(),
+                      ),
+                    );
+                  },
+                  onWillAccept: (task) => type != task.status,
+                  onAccept: (task) =>
+                      taskManager.changeTaskStatus(task.taskId, type),
                 ),
               ),
             ),
