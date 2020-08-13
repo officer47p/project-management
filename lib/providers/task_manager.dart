@@ -32,6 +32,15 @@ class TaskManager extends ChangeNotifier {
       status: TaskStatus.Open,
       taskOwner: "Parsa",
       timeToFinish: 1.5,
+    ),
+    Task(
+      taskId: "dnsj",
+      title: "Check the Documentation",
+      description:
+          "Check the Documentation and make sure that all the parameters are placed correctly",
+      status: TaskStatus.Open,
+      taskOwner: "Ali",
+      timeToFinish: 1.5,
     )
   ];
 

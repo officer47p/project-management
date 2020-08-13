@@ -5,9 +5,22 @@ import 'package:provider/provider.dart';
 
 import '../providers/task_manager.dart';
 
-class TaskCard extends StatelessWidget {
+class TaskCard extends StatefulWidget {
   final String taskId;
   TaskCard(this.taskId);
+
+  @override
+  _TaskCardState createState() => _TaskCardState();
+}
+
+class _TaskCardState extends State<TaskCard> {
+  bool _isBeingDragged = false;
+
+  void stopDrag([a, b]) {
+    setState(() {
+      _isBeingDragged = false;
+    });
+  }
 
   Color statusColor(TaskStatus status) {
     if (status == TaskStatus.Open) {
@@ -21,11 +34,8 @@ class TaskCard extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final task = Provider.of<TaskManager>(context).getSingleTask(taskId);
+  Widget _cardBuilder(Task task) {
     return Container(
-      margin: EdgeInsets.all(10),
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -128,26 +138,52 @@ class TaskCard extends StatelessWidget {
               )
             ],
           ),
-          // Row(
-          //   // textBaseline: TextBaseline.ideographic,
-          //   crossAxisAlignment: CrossAxisAlignment.center,
-          //   children: [
-          //     Text(
-          //       "Discussions",
-          //       style: TextStyle(
-          //         color: Colors.black.withOpacity(0.6),
-          //         fontFamily: "Ubuntu",
-          //         fontSize: 15,
-          //       ),
-          //     ),
-          //     IconButton(
-          //       icon: Icon(Icons.expand_more),
-          //       onPressed: () {},
-          //     )
-          //   ],
-          // )
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final task = Provider.of<TaskManager>(context).getSingleTask(widget.taskId);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        print(constraints.maxWidth);
+        final padding = const EdgeInsets.all(10);
+        return Padding(
+          padding: padding,
+          child: Draggable<String>(
+            onDragStarted: () => setState(() {
+              _isBeingDragged = true;
+            }),
+            onDragCompleted: stopDrag,
+            onDragEnd: stopDrag,
+            onDraggableCanceled: stopDrag,
+            data: task.taskId,
+            child: _isBeingDragged ? Container() : _cardBuilder(task),
+            feedback: DecoratedBox(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6.0,
+                    spreadRadius: 3.0,
+                  )
+                ],
+              ),
+              child: Material(
+                borderRadius: BorderRadius.circular(10),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth - padding.horizontal,
+                  ),
+                  child: _cardBuilder(task),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
