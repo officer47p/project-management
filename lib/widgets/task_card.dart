@@ -14,13 +14,13 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
-  bool _isBeingDragged = false;
+  // bool _isBeingDragged = false;
 
-  void stopDrag([a, b]) {
-    setState(() {
-      _isBeingDragged = false;
-    });
-  }
+  // void stopDrag([a, b]) {
+  //   setState(() {
+  //     _isBeingDragged = false;
+  //   });
+  // }
 
   Color statusColor(TaskStatus status) {
     if (status == TaskStatus.Open) {
@@ -153,14 +153,15 @@ class _TaskCardState extends State<TaskCard> {
         return Padding(
           padding: padding,
           child: Draggable<String>(
-            onDragStarted: () => setState(() {
-              _isBeingDragged = true;
-            }),
-            onDragCompleted: stopDrag,
-            onDragEnd: stopDrag,
-            onDraggableCanceled: stopDrag,
+            // onDragStarted: () => setState(() {
+            //   _isBeingDragged = true;
+            // }),
+            // onDragCompleted: stopDrag,
+            // onDragEnd: stopDrag,
+            // onDraggableCanceled: stopDrag,
             data: task.taskId,
-            child: _isBeingDragged ? Container() : _cardBuilder(task),
+            child: _cardBuilder(task),
+            childWhenDragging: Container(),
             feedback: DecoratedBox(
               decoration: BoxDecoration(
                 boxShadow: [
