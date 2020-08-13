@@ -81,15 +81,17 @@ class TaskManager extends ChangeNotifier {
   }
 
   List<Task> get openTasks {
-    return _tasks.where((task) => task.status == TaskStatus.Open);
+    return _tasks.where((task) => task.status == TaskStatus.Open).toList();
   }
 
   List<Task> get inProgressTasks {
-    return _tasks.where((task) => task.status == TaskStatus.InProgress);
+    return _tasks
+        .where((task) => task.status == TaskStatus.InProgress)
+        .toList();
   }
 
   List<Task> get doneTasks {
-    return _tasks.where((task) => task.status == TaskStatus.Done);
+    return _tasks.where((task) => task.status == TaskStatus.Done).toList();
   }
 
   void changeTaskStatus(String taskId, TaskStatus status) {

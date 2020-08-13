@@ -36,6 +36,30 @@ class CategoryColumn extends StatelessWidget {
     }
   }
 
+  String get emptyListText {
+    if (type == TaskStatus.Open) {
+      return "No Open Task To Show";
+    } else if (type == TaskStatus.InProgress) {
+      return "No In Progress Task To Show";
+    } else if (type == TaskStatus.Done) {
+      return "No Done Task To Show";
+    } else {
+      return "";
+    }
+  }
+
+  bool isTasksListEmpty(TaskManager tm) {
+    if (type == TaskStatus.Open) {
+      return tm.openTasks.isEmpty;
+    } else if (type == TaskStatus.InProgress) {
+      return tm.inProgressTasks.isEmpty;
+    } else if (type == TaskStatus.Done) {
+      return tm.doneTasks.isEmpty;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final taskManager = Provider.of<TaskManager>(context);
@@ -92,14 +116,27 @@ class CategoryColumn extends StatelessWidget {
                 ),
                 child: DragTarget<Task>(
                   builder: (context, candidateData, rejectedData) {
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: taskManager
-                            .getTasksByStatus(type)
-                            .map((task) => TaskCard(task.taskId))
-                            .toList(),
-                      ),
-                    );
+                    return isTasksListEmpty(taskManager)
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: FittedBox(
+                                child: Text(
+                              "${emptyListText}\n🙂",
+                              style: TextStyle(
+                                fontFamily: "Ubuntu",
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
+                            )),
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                              children: taskManager
+                                  .getTasksByStatus(type)
+                                  .map((task) => TaskCard(task.taskId))
+                                  .toList(),
+                            ),
+                          );
                   },
                   onWillAccept: (task) => type != task.status,
                   onAccept: (task) =>
