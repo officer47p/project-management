@@ -6,7 +6,7 @@ class Task extends ChangeNotifier {
   String taskOwner;
   String title;
   String description;
-  double timeToFinish;
+  Duration timeToFinish;
   TaskStatus status;
   String taskId;
   Task({
@@ -31,7 +31,7 @@ class TaskManager extends ChangeNotifier {
           "Check the Documentation and make sure that all the parameters are placed correctly",
       status: TaskStatus.Open,
       taskOwner: "Parsa",
-      timeToFinish: 1.5,
+      timeToFinish: Duration(hours: 1, minutes: 30),
     ),
     Task(
       taskId: "jjbkbk",
@@ -40,7 +40,7 @@ class TaskManager extends ChangeNotifier {
           "Check the Documentation and make sure that all the parameters are placed correctly",
       status: TaskStatus.Open,
       taskOwner: "Ali",
-      timeToFinish: 1.5,
+      timeToFinish: Duration(hours: 2),
     )
   ];
 
@@ -60,7 +60,7 @@ class TaskManager extends ChangeNotifier {
     String taskOwner,
     String title,
     String description,
-    double timeToFinish,
+    Duration timeToFinish,
     TaskStatus status,
   }) {
     _tasks.add(

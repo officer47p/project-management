@@ -129,9 +129,10 @@ class _TaskCardState extends State<TaskCard> {
                   color: Colors.white,
                 ),
                 label: Text(
-                  task.timeToFinish.toString(),
+                  timeLeftString(task),
                   style: TextStyle(
                     color: Colors.white,
+                    fontFamily: "Ubuntu",
                   ),
                 ),
                 backgroundColor: statusColor(task.status),
@@ -141,6 +142,24 @@ class _TaskCardState extends State<TaskCard> {
         ],
       ),
     );
+  }
+
+  String timeLeftString(Task task) {
+    int totalHours = task.timeToFinish.inHours;
+    final totalDays = (totalHours / 24) >= 1 ? totalHours ~/ 24 : 0;
+    totalHours -= 24 * totalDays;
+    if (totalDays > 0) {
+      return "Days: ${totalDays}, Hours: ${totalHours}";
+    } else {
+      return "Hours: ${totalHours}";
+    }
+    // if(task.timeToFinish.inHours > 23) {
+    //   if(task.timeToFinish.inHours - (24 * task.timeToFinish.inDays) > 0) {
+    //     return "Days: ${}, Hours: ${task.timeToFinish.inHours}";
+    //   }
+    // } else {
+    //   return "Hours: ${task.timeToFinish.inHours}";
+    // }
   }
 
   @override

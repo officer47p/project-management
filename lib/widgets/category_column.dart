@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../providers/task_manager.dart';
 
 import '../widgets/task_card.dart';
+import '../widgets/add_task_bottom_sheet.dart';
 
 import '../enums.dart';
 
@@ -88,11 +89,23 @@ class CategoryColumn extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100)),
                   child: Icon(Icons.add),
-                  onPressed: () {
-                    showModalBottomSheet(
+                  onPressed: () async {
+                    final result = await showModalBottomSheet(
                       context: context,
-                      builder: (context) => Container(),
+                      builder: (context) => AddTaskBottomSheet(type),
                     );
+                    if (result != null) {
+                      taskManager.addTask(
+                        title: result["title"],
+                        description: result["description"],
+                        status: result["status"],
+                        taskOwner: result["owner"],
+                        timeToFinish: Duration(
+                          days: result["days"],
+                          hours: result["hours"],
+                        ),
+                      );
+                    }
                   },
                   color: Colors.white,
                 )
