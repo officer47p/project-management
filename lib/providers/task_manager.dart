@@ -40,7 +40,7 @@ class TaskManager extends ChangeNotifier {
           "Check the Documentation and make sure that all the parameters are placed correctly",
       status: TaskStatus.Open,
       taskOwner: "Ali",
-      timeToFinish: Duration(hours: 2),
+      timeToFinish: Duration(hours: 0),
     )
   ];
 
