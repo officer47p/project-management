@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import 'dart:math' as math;
 import 'dart:async';
 
 import '../enums.dart';
@@ -90,6 +91,7 @@ class TaskManager extends ChangeNotifier {
         description: description,
         timeToFinish: timeToFinish,
         status: status,
+        taskId: ((math.Random().nextDouble() * 1000000) ~/ 1).toString(),
       ),
     );
     notifyListeners();

@@ -102,7 +102,7 @@ class CategoryColumn extends StatelessWidget {
                         taskOwner: result["owner"],
                         timeToFinish: Duration(
                           days: result["days"],
-                          hours: result["hours"],
+                          minutes: (result["hours"] * 60) ~/ 1,
                         ),
                       );
                     }
