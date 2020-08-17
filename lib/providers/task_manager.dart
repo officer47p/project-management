@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import 'dart:async';
+
 import '../enums.dart';
 
 class Task extends ChangeNotifier {
@@ -23,6 +25,12 @@ class Task extends ChangeNotifier {
 }
 
 class TaskManager extends ChangeNotifier {
+  TaskManager() {
+    _timer = Timer.periodic(Duration(minutes: 1), tick);
+  }
+
+  Timer _timer;
+
   List<Task> _tasks = [
     Task(
       taskId: "dnsj",
@@ -54,6 +62,18 @@ class TaskManager extends ChangeNotifier {
 
   Task getSingleTask(String taskId) {
     return _tasks.firstWhere((task) => task.taskId == taskId);
+  }
+
+  void tick(Timer t) {
+    print("Called Tick");
+    _tasks.forEach((task) {
+      if (task.timeToFinish.inMinutes - 1 >= 0) {
+        task.timeToFinish -= Duration(minutes: 1);
+      } else {
+        task.timeToFinish = Duration(minutes: 0);
+      }
+    });
+    notifyListeners();
   }
 
   void addTask({
