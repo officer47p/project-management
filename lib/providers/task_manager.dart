@@ -9,7 +9,7 @@ class Task extends ChangeNotifier {
   String taskOwner;
   String title;
   String description;
-  Duration timeToFinish;
+  DateTime timeToFinish;
   TaskStatus status;
   String taskId;
   Task({
@@ -40,7 +40,7 @@ class TaskManager extends ChangeNotifier {
           "Check the Documentation and make sure that all the parameters are placed correctly",
       status: TaskStatus.Open,
       taskOwner: "Parsa",
-      timeToFinish: Duration(hours: 1, minutes: 30),
+      timeToFinish: DateTime.now().add(Duration(hours: 1, minutes: 30)),
     ),
     Task(
       taskId: "jjbkbk",
@@ -49,7 +49,7 @@ class TaskManager extends ChangeNotifier {
           "Check the Documentation and make sure that all the parameters are placed correctly",
       status: TaskStatus.Open,
       taskOwner: "Ali",
-      timeToFinish: Duration(hours: 0),
+      timeToFinish: DateTime.now().add(Duration(hours: 0)),
     )
   ];
 
@@ -68,10 +68,10 @@ class TaskManager extends ChangeNotifier {
   void tick(Timer t) {
     print("Called Tick");
     _tasks.forEach((task) {
-      if (task.timeToFinish.inMinutes - 1 >= 0) {
-        task.timeToFinish -= Duration(minutes: 1);
+      if ((task.timeToFinish.difference(DateTime.now())).inMinutes - 1 >= 0) {
+        task.timeToFinish.subtract(Duration(minutes: 1));
       } else {
-        task.timeToFinish = Duration(minutes: 0);
+        task.timeToFinish = DateTime.now();
       }
     });
     notifyListeners();
@@ -89,7 +89,7 @@ class TaskManager extends ChangeNotifier {
         taskOwner: taskOwner,
         title: title,
         description: description,
-        timeToFinish: timeToFinish,
+        timeToFinish: DateTime.now().add(timeToFinish),
         status: status,
         taskId: ((math.Random().nextDouble() * 1000000) ~/ 1).toString(),
       ),

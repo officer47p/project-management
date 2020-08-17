@@ -19,7 +19,7 @@ class ProjectManagement extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => TaskManager(),
       child: MaterialApp(
-        title: "Project Management",
+        title: "Task Flow",
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light().copyWith(
           textTheme: TextTheme(

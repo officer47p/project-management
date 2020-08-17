@@ -11,7 +11,8 @@ class AddTaskBottomSheet extends StatefulWidget {
 
 class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  double _hours;
+  int _minutes;
+  int _hours;
   int _days;
   Map task = {};
 
@@ -147,7 +148,8 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           task["days"] = int.tryParse(newValue) ?? 0,
                       validator: (value) {
                         if (value.isNotEmpty) {
-                          if (_hours == null || _hours <= 0) {
+                          if ((_hours == null || _hours <= 0) &&
+                              (_minutes == null || _minutes <= 0)) {
                             final inputDays = int.tryParse(value);
                             if (inputDays == null)
                               return "Please input a valid value";
@@ -157,7 +159,8 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           } else
                             return null;
                         }
-                        if (_hours == null || _hours <= 0)
+                        if ((_hours == null || _hours <= 0) &&
+                            (_minutes == null || _minutes <= 0))
                           return "Please fill at least one of these fields: Hours or Days to finish";
                         return null;
                       },
@@ -182,13 +185,14 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onChanged: (value) => _hours = double.tryParse(value),
+                      onChanged: (value) => _hours = int.tryParse(value),
                       onSaved: (newValue) =>
-                          task["hours"] = double.tryParse(newValue) ?? 0,
+                          task["hours"] = int.tryParse(newValue) ?? 0,
                       validator: (value) {
                         if (value.isNotEmpty) {
-                          if (_days == null || _days <= 0) {
-                            final inputHours = double.tryParse(value);
+                          if ((_days == null || _days <= 0) &&
+                              (_minutes == null || _minutes <= 0)) {
+                            final inputHours = int.tryParse(value);
                             if (inputHours == null)
                               return "Please input a valid value";
                             if (inputHours <= 0)
@@ -197,8 +201,51 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           } else
                             return null;
                         }
-                        if (_days == null || _days <= 0)
+                        if ((_days == null || _days <= 0) &&
+                            (_minutes == null || _minutes <= 0))
                           return "Please fill at least one of these fields: Hours or Days to finish";
+                        return null;
+                      },
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        // counter: Icon(Icons.ac_unit),
+                        hintText: "Minutes Left",
+                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onChanged: (value) => _minutes = int.tryParse(value),
+                      onSaved: (newValue) =>
+                          task["minutes"] = int.tryParse(newValue) ?? 0,
+                      validator: (value) {
+                        if (value.isNotEmpty) {
+                          if ((_days == null || _days <= 0) &&
+                              (_hours == null || _hours <= 0)) {
+                            final inputMinutes = int.tryParse(value);
+                            if (inputMinutes == null)
+                              return "Please input a valid value";
+                            if (inputMinutes <= 0)
+                              return "Please input a number greater that 0";
+                            return null;
+                          } else
+                            return null;
+                        }
+                        if ((_days == null || _days <= 0) &&
+                            (_hours == null || _hours <= 0))
+                          return "Please fill at least one of these fields: Hours or Days or Minutes to finish";
                         return null;
                       },
                     ),

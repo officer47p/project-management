@@ -24,7 +24,7 @@ class CustomAppBar extends StatelessWidget {
             ]),
         child: Center(
           child: Text(
-            "Hackathon Master",
+            "Task ~ Flow",
             style: TextStyle(
               fontFamily: "RubikMonoOne",
               color: Colors.black,

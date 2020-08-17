@@ -145,13 +145,14 @@ class _TaskCardState extends State<TaskCard> {
   }
 
   String timeLeftString(Task task) {
-    int totalMins = task.timeToFinish.inMinutes;
+    final DateTime _now = DateTime.now();
+    int totalMins = task.timeToFinish.difference(_now).inMinutes;
     int totalHours = totalMins ~/ 60 >= 1 ? totalMins ~/ 60 : 0;
     totalMins -= totalHours * 60;
     // int totalHours = task.timeToFinish.inHours;
     final totalDays = (totalHours / 24) >= 1 ? totalHours ~/ 24 : 0;
     totalHours -= 24 * totalDays;
-    return "${totalDays > 0 ? 'd:${totalDays} ' : ''}${totalHours > 0 ? 'h:${totalHours} ' : ''}${totalMins > 0 ? 'm:${totalMins}' : ''}${task.timeToFinish.inMinutes == 0 ? 'time\'s up!' : ''}";
+    return "${totalDays > 0 ? 'd:${totalDays} ' : ''}${totalHours > 0 ? 'h:${totalHours} ' : ''}${totalMins > 0 ? 'm:${totalMins}' : ''}${task.timeToFinish.difference(_now).inMinutes <= 0 ? 'time\'s up!' : ''}";
     // if (totalDays > 0 && totalHours > 0) {
     //   return "D: ${totalDays}, H: ${totalHours}";
     // } else {
