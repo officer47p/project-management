@@ -37,187 +37,196 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Add A New Task",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 45,
-                fontFamily: "Ubuntu",
-                fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Add A New Task",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 45,
+                  fontFamily: "Ubuntu",
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: "Ubuntu",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return "This field should not be empty";
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      // counter: Icon(Icons.ac_unit),
-                      hintText: "Title",
-                      hintStyle: TextStyle(fontFamily: "Ubuntu"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+              SizedBox(
+                height: 20,
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
                       ),
-                    ),
-                    onSaved: (val) => task["title"] = val,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    maxLines: 4,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: "Ubuntu",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return "This field should not be empty";
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      // counter: Icon(Icons.ac_unit),
-                      hintText: "Description",
-                      hintStyle: TextStyle(fontFamily: "Ubuntu"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onSaved: (val) => task["description"] = val,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: "Ubuntu",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      hintText: "Days Left",
-                      hintStyle: TextStyle(fontFamily: "Ubuntu"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onChanged: (value) => _days = int.tryParse(value),
-                    onSaved: (newValue) =>
-                        task["days"] = int.tryParse(newValue) ?? 0,
-                    validator: (value) {
-                      if (value.isNotEmpty) {
-                        if (_hours == null || _hours <= 0) {
-                          final inputDays = int.tryParse(value);
-                          if (inputDays == null)
-                            return "Please input a valid value";
-                          if (inputDays <= 0)
-                            return "Please input a number greater that 0";
-                          return null;
-                        } else
-                          return null;
-                      }
-                      if (_hours == null || _hours <= 0)
-                        return "Please fill at least one of these fields: Hours or Days to finish";
-                      return null;
-                    },
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: "Ubuntu",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      // counter: Icon(Icons.ac_unit),
-                      hintText: "Hours Left",
-                      hintStyle: TextStyle(fontFamily: "Ubuntu"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onChanged: (value) => _hours = double.tryParse(value),
-                    onSaved: (newValue) =>
-                        task["hours"] = double.tryParse(newValue) ?? 0,
-                    validator: (value) {
-                      if (value.isNotEmpty) {
-                        if (_days == null || _days <= 0) {
-                          final inputHours = double.tryParse(value);
-                          if (inputHours == null)
-                            return "Please input a valid value";
-                          if (inputHours <= 0)
-                            return "Please input a number greater that 0";
-                          return null;
-                        } else
-                          return null;
-                      }
-                      if (_days == null || _days <= 0)
-                        return "Please fill at least one of these fields: Hours or Days to finish";
-                      return null;
-                    },
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    child: FlatButton(
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: "Ubuntu",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return "This field should not be empty";
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        // counter: Icon(Icons.ac_unit),
+                        hintText: "Title",
+                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {
-                        _submitForm();
+                      onSaved: (val) => task["title"] = val,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      maxLines: 4,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return "This field should not be empty";
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        // counter: Icon(Icons.ac_unit),
+                        hintText: "Description",
+                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onSaved: (val) => task["description"] = val,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        hintText: "Days Left",
+                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onChanged: (value) => _days = int.tryParse(value),
+                      onSaved: (newValue) =>
+                          task["days"] = int.tryParse(newValue) ?? 0,
+                      validator: (value) {
+                        if (value.isNotEmpty) {
+                          if (_hours == null || _hours <= 0) {
+                            final inputDays = int.tryParse(value);
+                            if (inputDays == null)
+                              return "Please input a valid value";
+                            if (inputDays <= 0)
+                              return "Please input a number greater that 0";
+                            return null;
+                          } else
+                            return null;
+                        }
+                        if (_hours == null || _hours <= 0)
+                          return "Please fill at least one of these fields: Hours or Days to finish";
+                        return null;
                       },
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        // counter: Icon(Icons.ac_unit),
+                        hintText: "Hours Left",
+                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onChanged: (value) => _hours = double.tryParse(value),
+                      onSaved: (newValue) =>
+                          task["hours"] = double.tryParse(newValue) ?? 0,
+                      validator: (value) {
+                        if (value.isNotEmpty) {
+                          if (_days == null || _days <= 0) {
+                            final inputHours = double.tryParse(value);
+                            if (inputHours == null)
+                              return "Please input a valid value";
+                            if (inputHours <= 0)
+                              return "Please input a number greater that 0";
+                            return null;
+                          } else
+                            return null;
+                        }
+                        if (_days == null || _days <= 0)
+                          return "Please fill at least one of these fields: Hours or Days to finish";
+                        return null;
+                      },
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      child: FlatButton(
+                        child: Text(
+                          "Submit",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Ubuntu",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
+                          ),
+                        ),
+                        onPressed: () {
+                          _submitForm();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

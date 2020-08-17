@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(AppBar(
-      title: Text("Project Management"),
+      title: Text("Task Flow"),
     ).preferredSize.height);
     return Scaffold(
       body: Stack(

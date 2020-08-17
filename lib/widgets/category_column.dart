@@ -91,6 +91,8 @@ class CategoryColumn extends StatelessWidget {
                   child: Icon(Icons.add),
                   onPressed: () async {
                     final result = await showModalBottomSheet(
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
                       context: context,
                       builder: (context) => AddTaskBottomSheet(type),
                     );
