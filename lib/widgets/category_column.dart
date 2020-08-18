@@ -58,6 +58,7 @@ class _CategoryColumnState extends State<CategoryColumn> {
 
   bool isTasksListEmpty(TaskManager tm) {
     if (widget.type == TaskStatus.Open) {
+      print("###################################$tm.openTasks.isEmpty");
       return tm.openTasks.isEmpty;
     } else if (widget.type == TaskStatus.InProgress) {
       return tm.inProgressTasks.isEmpty;

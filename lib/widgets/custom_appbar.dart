@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth.dart';
+import '../providers/task_manager.dart';
 
 class CustomAppBar extends StatelessWidget {
   final EdgeInsets padding;
@@ -22,16 +25,75 @@ class CustomAppBar extends StatelessWidget {
                 spreadRadius: 2.0,
               ),
             ]),
-        child: Center(
-          child: Text(
-            "Task ~ Flow",
-            style: TextStyle(
-              fontFamily: "RubikMonoOne",
-              color: Colors.black,
-              fontWeight: FontWeight.normal,
-              fontSize: 25,
+        child: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Consumer<TaskManager>(
+                  builder: (context, value, child) => Text(
+                    "${DateTime.now().hour} : ${DateTime.now().minute} : ${DateTime.now().second}",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontFamily: "Ubuntu",
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: Text(
+                "Task ~ Flow",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: "RubikMonoOne",
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      Provider.of<Auth>(context, listen: false).userEmail ?? "",
+                      style: TextStyle(
+                          fontFamily: "Ubuntu",
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue),
+                    ),
+                  ),
+                  Flexible(
+                    child: FlatButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Text(
+                        "Log Out",
+                        style: TextStyle(
+                          fontFamily: "Ubuntu",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () async {
+                        final taskManager =
+                            Provider.of<TaskManager>(context, listen: false);
+                        await Provider.of<Auth>(context, listen: false)
+                            .logOut(taskManager.timer);
+                        // taskManager.timer
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

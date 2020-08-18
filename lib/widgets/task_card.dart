@@ -4,6 +4,9 @@ import '../enums.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/task_manager.dart';
+import '../providers/auth.dart';
+
+import '../widgets/add_task_bottom_sheet.dart';
 
 class TaskCard extends StatefulWidget {
   final String taskId;
@@ -14,13 +17,7 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
-  // bool _isBeingDragged = false;
-
-  // void stopDrag([a, b]) {
-  //   setState(() {
-  //     _isBeingDragged = false;
-  //   });
-  // }
+  bool _isLoading = false;
 
   Color statusColor(TaskStatus status) {
     if (status == TaskStatus.Open) {
@@ -35,112 +32,201 @@ class _TaskCardState extends State<TaskCard> {
   }
 
   Widget _cardBuilder(Task task) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6.0,
-            spreadRadius: 3.0,
-          )
-        ],
-      ),
-      padding: EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  task.title,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: "Ubuntu",
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.more_vert),
-                onPressed: () {},
-              )
-            ],
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Text(
-            task.description,
-            style: TextStyle(
-              color: Colors.black.withOpacity(0.6),
-              fontFamily: "Ubuntu",
-              fontSize: 15,
+    return Stack(
+      children: [
+        Opacity(
+          opacity: _isLoading ? 0.5 : 1,
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 6.0,
+                  spreadRadius: 3.0,
+                )
+              ],
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Row(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
                       child: Text(
-                        "Task Owner:",
+                        task.title,
                         style: TextStyle(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black,
                           fontFamily: "Ubuntu",
-                          fontSize: 15,
+                          fontSize: 20,
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
                     Flexible(
-                      child: Container(
-                        padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Text(
-                          task.taskOwner,
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(0.6),
-                            fontFamily: "Ubuntu",
-                            fontSize: 15,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.edit,
+                                color: Colors.blue,
+                              ),
+                              onPressed: _isLoading
+                                  ? () {}
+                                  : () async {
+                                      final result = await showModalBottomSheet(
+                                        backgroundColor: Colors.transparent,
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) =>
+                                            AddTaskBottomSheet(
+                                          task.status,
+                                          preLoadedTask: task,
+                                        ),
+                                      );
+                                      if (result != null) {
+                                        try {
+                                          setState(() {
+                                            _isLoading = true;
+                                          });
+                                          await Provider.of<TaskManager>(
+                                                  context,
+                                                  listen: false)
+                                              .editTask(
+                                            title: result["title"],
+                                            description: result["description"],
+                                            status: result["status"],
+                                            taskId: task.taskId,
+                                            taskOwner: result["owner"],
+                                            timeToFinish: Duration(
+                                              days: result["days"],
+                                              hours: result["hours"],
+                                              minutes: result["minutes"],
+                                            ),
+                                          );
+                                        } catch (err) {
+                                          print(err);
+                                        }
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      }
+                                    },
+                            ),
                           ),
-                        ),
+                          Flexible(
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              onPressed: _isLoading
+                                  ? () {}
+                                  : () async {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+                                      await Provider.of<TaskManager>(context,
+                                              listen: false)
+                                          .deleteTask(task.taskId);
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                    },
+                            ),
+                          )
+                        ],
                       ),
                     )
                   ],
                 ),
-              ),
-              Chip(
-                avatar: Icon(
-                  Icons.timelapse,
-                  color: Colors.white,
+                SizedBox(
+                  height: 20,
                 ),
-                label: Text(
-                  timeLeftString(task),
+                Text(
+                  task.description,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black.withOpacity(0.6),
                     fontFamily: "Ubuntu",
+                    fontSize: 15,
                   ),
                 ),
-                backgroundColor: statusColor(task.status),
-              )
-            ],
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              "Task Owner:",
+                              style: TextStyle(
+                                color: Colors.black.withOpacity(0.6),
+                                fontFamily: "Ubuntu",
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Flexible(
+                            child: Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Consumer<Auth>(
+                                  builder: (context, value, child) => Text(
+                                    value != null
+                                        ? value.userEmail != null
+                                            ? value.userEmail.split("@")[0]
+                                            : ""
+                                        : "",
+                                    style: TextStyle(
+                                      color: Colors.black.withOpacity(0.6),
+                                      fontFamily: "Ubuntu",
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                )),
+                          )
+                        ],
+                      ),
+                    ),
+                    Chip(
+                      avatar: Icon(
+                        Icons.timelapse,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        timeLeftString(task),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: "Ubuntu",
+                        ),
+                      ),
+                      backgroundColor: statusColor(task.status),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+        // if (_isLoading)
+        //   Center(
+        //     child: CircularProgressIndicator(),
+        //   ),
+      ],
     );
   }
 

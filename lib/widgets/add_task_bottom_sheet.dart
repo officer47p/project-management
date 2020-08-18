@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../enums.dart';
+
+import '../providers/task_manager.dart';
+import '../providers/auth.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   final TaskStatus status;
-  AddTaskBottomSheet(this.status);
+  final Task preLoadedTask;
+  AddTaskBottomSheet(this.status, {this.preLoadedTask});
   @override
   _AddTaskBottomSheetState createState() => _AddTaskBottomSheetState();
 }
@@ -16,13 +20,25 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   int _days;
   Map task = {};
 
+  @override
+  void initState() {
+    if (widget.preLoadedTask != null) {
+      _minutes = int.parse(timeLeftString(widget.preLoadedTask, "m"));
+      _hours = int.parse(timeLeftString(widget.preLoadedTask, "h"));
+      _days = int.parse(timeLeftString(widget.preLoadedTask, "d"));
+    }
+    super.initState();
+  }
+
   void _submitForm() {
     final form = _formKey.currentState;
+    print("Dys: $_days Hors: $_hours Min: $_minutes");
     if (form.validate()) {
       print("Validated");
       form.save();
       task["status"] = widget.status;
-      task["owner"] = "Parsa";
+      task["owner"] =
+          Provider.of<Auth>(context, listen: false).userEmail.split("@")[0];
       print(task);
       Navigator.pop(context, task);
     }
@@ -34,6 +50,28 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     //   print(task);
     //   Navigator.of(context).pop(task);
     // }
+  }
+
+  String timeLeftString(Task task, String outputType) {
+    final DateTime _now = DateTime.now();
+    int totalMins = task.timeToFinish.difference(_now).inMinutes;
+    int totalHours = totalMins ~/ 60 >= 1 ? totalMins ~/ 60 : 0;
+    totalMins -= totalHours * 60;
+    // int totalHours = task.timeToFinish.inHours;
+    final totalDays = (totalHours / 24) >= 1 ? totalHours ~/ 24 : 0;
+    totalHours -= 24 * totalDays;
+    if (task.timeToFinish.difference(_now).inMinutes <= 0) {
+      return 0.toString();
+    } else {
+      if (outputType == "d") {
+        return totalDays.toString();
+      } else if (outputType == "h") {
+        return totalHours.toString();
+      } else if (outputType == "m") {
+        return totalMins.toString();
+      }
+    }
+    // "${totalDays > 0 ? 'd:${totalDays} ' : ''}${totalHours > 0 ? 'h:${totalHours} ' : ''}${totalMins > 0 ? 'm:${totalMins}' : ''}${task.timeToFinish.difference(_now).inMinutes <= 0 ? 'time\'s up!' : ''}";
   }
 
   @override
@@ -53,7 +91,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Add A New Task",
+                widget.preLoadedTask != null ? "Edit Task" : "Add A New Task",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 45,
@@ -85,13 +123,16 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         // counter: Icon(Icons.ac_unit),
-                        hintText: "Title",
-                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        labelText: "Title",
+                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onSaved: (val) => task["title"] = val,
+                      initialValue: widget.preLoadedTask != null
+                          ? widget.preLoadedTask.title
+                          : "",
                     ),
                     SizedBox(
                       height: 20,
@@ -112,15 +153,18 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                       },
                       decoration: InputDecoration(
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         // counter: Icon(Icons.ac_unit),
-                        hintText: "Description",
-                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        labelText: "Description",
+                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onSaved: (val) => task["description"] = val,
+                      initialValue: widget.preLoadedTask != null
+                          ? widget.preLoadedTask.description
+                          : "",
                     ),
                     SizedBox(
                       height: 20,
@@ -137,12 +181,15 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           horizontal: 10,
                           vertical: 5,
                         ),
-                        hintText: "Days Left",
-                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        labelText: "Days Left",
+                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      initialValue: widget.preLoadedTask != null
+                          ? timeLeftString(widget.preLoadedTask, "d")
+                          : "",
                       onChanged: (value) => _days = int.tryParse(value),
                       onSaved: (newValue) =>
                           task["days"] = int.tryParse(newValue) ?? 0,
@@ -179,12 +226,15 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         // counter: Icon(Icons.ac_unit),
-                        hintText: "Hours Left",
-                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        labelText: "Hours Left",
+                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      initialValue: widget.preLoadedTask != null
+                          ? timeLeftString(widget.preLoadedTask, "h")
+                          : "",
                       onChanged: (value) => _hours = int.tryParse(value),
                       onSaved: (newValue) =>
                           task["hours"] = int.tryParse(newValue) ?? 0,
@@ -221,12 +271,15 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         // counter: Icon(Icons.ac_unit),
-                        hintText: "Minutes Left",
-                        hintStyle: TextStyle(fontFamily: "Ubuntu"),
+                        labelText: "Minutes Left",
+                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      initialValue: widget.preLoadedTask != null
+                          ? timeLeftString(widget.preLoadedTask, "m")
+                          : "",
                       onChanged: (value) => _minutes = int.tryParse(value),
                       onSaved: (newValue) =>
                           task["minutes"] = int.tryParse(newValue) ?? 0,

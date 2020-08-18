@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_management/credentials.dart';
-
+import '../providers/auth.dart';
 import 'dart:math' as math;
 import 'dart:async';
 import 'dart:convert';
@@ -29,11 +29,12 @@ class Task extends ChangeNotifier {
 }
 
 class TaskManager extends ChangeNotifier {
-  TaskManager() {
-    this._timer = Timer.periodic(Duration(minutes: 1), tick);
-  }
+  TaskManager(this._tasks, {this.authToken, this.userId, this.setAutoLogOut});
 
-  Timer _timer;
+  String authToken;
+  String userId;
+  Timer timer;
+  Function setAutoLogOut;
 
   List<Task> _tasks = [
     // Task(
@@ -56,10 +57,8 @@ class TaskManager extends ChangeNotifier {
     // )
   ];
 
-  void fetchTasks() async {}
-
   List<Task> get tasks {
-    return _tasks;
+    return [..._tasks];
   }
 
   List<Task> getTasksByStatus(TaskStatus status) {
@@ -84,13 +83,53 @@ class TaskManager extends ChangeNotifier {
 
   void tick(Timer t) {
     print("Called Tick");
-    _tasks.forEach((task) {
-      if ((task.timeToFinish.difference(DateTime.now())).inMinutes - 1 >= 0) {
-        task.timeToFinish.subtract(Duration(minutes: 1));
-      } else {
-        task.timeToFinish = DateTime.now();
+    notifyListeners();
+  }
+
+  TaskStatus stringToTaskStatus(String stat) {
+    print(stat);
+    if (stat == "open") {
+      return TaskStatus.Open;
+    } else if (stat == "inProgress") {
+      return TaskStatus.InProgress;
+    } else if (stat == "done") {
+      return TaskStatus.Done;
+    } else {
+      throw Exception("Problem in converting string status to enum status");
+    }
+  }
+
+  Future<void> fetchData() async {
+    http.Response res;
+    Map parsedRes;
+    // &orderBy="userId"&equalTo="${userId}"
+    try {
+      res = await http.get(
+          '${dbTasksUrl}?auth=${authToken}&orderBy="userId"&equalTo="${userId}"');
+      parsedRes = json.decode(res.body);
+      print(parsedRes);
+      if (parsedRes != null) {
+        _tasks = [];
+        parsedRes.forEach((key, value) {
+          print(value["status"]);
+          _tasks.add(
+            Task(
+              title: value["title"],
+              description: value["description"],
+              status: stringToTaskStatus(value["status"]),
+              taskId: key,
+              taskOwner: value["taskOwner"],
+              timeToFinish: DateTime.parse(value["timeToFinish"]),
+            ),
+          );
+        });
       }
-    });
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+    this.timer = Timer.periodic(Duration(seconds: 1), tick);
+    setAutoLogOut(timer);
     notifyListeners();
   }
 
@@ -106,9 +145,10 @@ class TaskManager extends ChangeNotifier {
     String taskId;
     try {
       response = await http.post(
-        dbTasksUrl,
+        "${dbTasksUrl}?auth=${authToken}",
         body: json.encode(
           {
+            "userId": userId,
             "title": title,
             "description": description,
             "taskOwner": taskOwner,
@@ -140,8 +180,61 @@ class TaskManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteTask(String taskId) {
-    _tasks.removeWhere((task) => task.taskId == taskId);
+  Future<void> editTask({
+    String taskOwner,
+    String title,
+    String description,
+    Duration timeToFinish,
+    TaskStatus status,
+    String taskId,
+  }) async {
+    final _now = DateTime.now();
+    http.Response response;
+    try {
+      response = await http.patch(
+        "${dbTasksBase}/${taskId}.json?auth=$authToken",
+        body: json.encode(
+          {
+            "title": title,
+            "description": description,
+            "taskOwner": taskOwner,
+            "status": statusToString(status),
+            "timeToFinish": _now.add(timeToFinish).toIso8601String(),
+          },
+        ),
+      );
+      print(json.decode(response.body));
+      if (json.decode(response.body) == null)
+        throw Exception("ERROR: Response was empty.");
+    } catch (err) {
+      print("${err} READ THISSSSSSSSSSSSSSS");
+      throw err;
+    }
+
+    print("Task Id: $taskId");
+
+    final taskIndex = _tasks.indexWhere((element) => element.taskId == taskId);
+
+    _tasks[taskIndex] = Task(
+      taskOwner: taskOwner,
+      title: title,
+      description: description,
+      timeToFinish: _now.add(timeToFinish),
+      status: status,
+      taskId: taskId,
+    );
+    notifyListeners();
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    try {
+      final res =
+          await http.delete("${dbTasksBase}/${taskId}.json?auth=$authToken");
+      _tasks.removeWhere((task) => task.taskId == taskId);
+      notifyListeners();
+    } catch (err) {
+      print(err);
+    }
     notifyListeners();
   }
 
@@ -159,9 +252,18 @@ class TaskManager extends ChangeNotifier {
     return _tasks.where((task) => task.status == TaskStatus.Done).toList();
   }
 
-  void changeTaskStatus(String taskId, TaskStatus status) {
+  Future<void> changeTaskStatus(String taskId, TaskStatus status) async {
     final int index = _tasks.indexWhere((task) => task.taskId == taskId);
+    final lastStatus = _tasks[index].status;
     _tasks[index].status = status;
+    notifyListeners();
+    try {
+      await http.patch("${dbTasksBase}/${taskId}.json?auth=$authToken",
+          body: json.encode({"status": statusToString(status)}));
+    } catch (err) {
+      _tasks[index].status = lastStatus;
+    }
+
     notifyListeners();
   }
 }
