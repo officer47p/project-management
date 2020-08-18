@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'package:project_management/credentials.dart';
 
 import 'dart:math' as math;
 import 'dart:async';
+import 'dart:convert';
 
 import '../enums.dart';
 
@@ -27,31 +30,33 @@ class Task extends ChangeNotifier {
 
 class TaskManager extends ChangeNotifier {
   TaskManager() {
-    _timer = Timer.periodic(Duration(minutes: 1), tick);
+    this._timer = Timer.periodic(Duration(minutes: 1), tick);
   }
 
   Timer _timer;
 
   List<Task> _tasks = [
-    Task(
-      taskId: "dnsj",
-      title: "Check the Documentation",
-      description:
-          "Check the Documentation and make sure that all the parameters are placed correctly",
-      status: TaskStatus.Open,
-      taskOwner: "Parsa",
-      timeToFinish: DateTime.now().add(Duration(hours: 1, minutes: 30)),
-    ),
-    Task(
-      taskId: "jjbkbk",
-      title: "Check the Documentation",
-      description:
-          "Check the Documentation and make sure that all the parameters are placed correctly",
-      status: TaskStatus.Open,
-      taskOwner: "Ali",
-      timeToFinish: DateTime.now().add(Duration(hours: 0)),
-    )
+    // Task(
+    //   taskId: "dnsj",
+    //   title: "Check the Documentation",
+    //   description:
+    //       "Check the Documentation and make sure that all the parameters are placed correctly",
+    //   status: TaskStatus.Open,
+    //   taskOwner: "Parsa",
+    //   timeToFinish: DateTime.now().add(Duration(hours: 1, minutes: 30)),
+    // ),
+    // Task(
+    //   taskId: "jjbkbk",
+    //   title: "Check the Documentation",
+    //   description:
+    //       "Check the Documentation and make sure that all the parameters are placed correctly",
+    //   status: TaskStatus.Open,
+    //   taskOwner: "Parsa",
+    //   timeToFinish: DateTime.now().add(Duration(hours: 0)),
+    // )
   ];
+
+  void fetchTasks() async {}
 
   List<Task> get tasks {
     return _tasks;
@@ -63,6 +68,18 @@ class TaskManager extends ChangeNotifier {
 
   Task getSingleTask(String taskId) {
     return _tasks.firstWhere((task) => task.taskId == taskId);
+  }
+
+  String statusToString(TaskStatus stat) {
+    if (stat == TaskStatus.Open) {
+      return "open";
+    } else if (stat == TaskStatus.InProgress) {
+      return "inProgress";
+    } else if (stat == TaskStatus.Done) {
+      return "done";
+    } else {
+      return "";
+    }
   }
 
   void tick(Timer t) {
@@ -77,21 +94,47 @@ class TaskManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addTask({
+  Future<void> addTask({
     String taskOwner,
     String title,
     String description,
     Duration timeToFinish,
     TaskStatus status,
-  }) {
+  }) async {
+    final _now = DateTime.now();
+    http.Response response;
+    String taskId;
+    try {
+      response = await http.post(
+        dbTasksUrl,
+        body: json.encode(
+          {
+            "title": title,
+            "description": description,
+            "taskOwner": taskOwner,
+            "status": statusToString(status),
+            "timeToFinish": _now.add(timeToFinish).toIso8601String(),
+          },
+        ),
+      );
+      if (json.decode(response.body) == null)
+        throw Exception("ERROR: Response was empty.");
+      taskId = json.decode(response.body)["name"];
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+
+    print("Task Id: $taskId");
+
     _tasks.add(
       Task(
         taskOwner: taskOwner,
         title: title,
         description: description,
-        timeToFinish: DateTime.now().add(timeToFinish),
+        timeToFinish: _now.add(timeToFinish),
         status: status,
-        taskId: ((math.Random().nextDouble() * 1000000) ~/ 1).toString(),
+        taskId: taskId,
       ),
     );
     notifyListeners();

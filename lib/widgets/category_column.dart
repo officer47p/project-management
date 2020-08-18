@@ -9,16 +9,23 @@ import '../widgets/add_task_bottom_sheet.dart';
 
 import '../enums.dart';
 
-class CategoryColumn extends StatelessWidget {
+class CategoryColumn extends StatefulWidget {
   final type;
   const CategoryColumn({this.type});
 
+  @override
+  _CategoryColumnState createState() => _CategoryColumnState();
+}
+
+class _CategoryColumnState extends State<CategoryColumn> {
+  bool _isLoading = false;
+
   String get typeText {
-    if (type == TaskStatus.Open) {
+    if (widget.type == TaskStatus.Open) {
       return "Open:";
-    } else if (type == TaskStatus.InProgress) {
+    } else if (widget.type == TaskStatus.InProgress) {
       return "In Progress:";
-    } else if (type == TaskStatus.Done) {
+    } else if (widget.type == TaskStatus.Done) {
       return "Done:";
     } else {
       return "Unknown";
@@ -26,11 +33,11 @@ class CategoryColumn extends StatelessWidget {
   }
 
   Color get typeColor {
-    if (type == TaskStatus.Open) {
+    if (widget.type == TaskStatus.Open) {
       return Colors.green;
-    } else if (type == TaskStatus.InProgress) {
+    } else if (widget.type == TaskStatus.InProgress) {
       return Colors.amber;
-    } else if (type == TaskStatus.Done) {
+    } else if (widget.type == TaskStatus.Done) {
       return Colors.blue;
     } else {
       return Colors.red;
@@ -38,11 +45,11 @@ class CategoryColumn extends StatelessWidget {
   }
 
   String get emptyListText {
-    if (type == TaskStatus.Open) {
+    if (widget.type == TaskStatus.Open) {
       return "No Open Task To Show";
-    } else if (type == TaskStatus.InProgress) {
+    } else if (widget.type == TaskStatus.InProgress) {
       return "No In Progress Task To Show";
-    } else if (type == TaskStatus.Done) {
+    } else if (widget.type == TaskStatus.Done) {
       return "No Done Task To Show";
     } else {
       return "";
@@ -50,11 +57,11 @@ class CategoryColumn extends StatelessWidget {
   }
 
   bool isTasksListEmpty(TaskManager tm) {
-    if (type == TaskStatus.Open) {
+    if (widget.type == TaskStatus.Open) {
       return tm.openTasks.isEmpty;
-    } else if (type == TaskStatus.InProgress) {
+    } else if (widget.type == TaskStatus.InProgress) {
       return tm.inProgressTasks.isEmpty;
-    } else if (type == TaskStatus.Done) {
+    } else if (widget.type == TaskStatus.Done) {
       return tm.doneTasks.isEmpty;
     } else {
       return false;
@@ -88,28 +95,47 @@ class CategoryColumn extends StatelessWidget {
                 FlatButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100)),
-                  child: Icon(Icons.add),
-                  onPressed: () async {
-                    final result = await showModalBottomSheet(
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (context) => AddTaskBottomSheet(type),
-                    );
-                    if (result != null) {
-                      taskManager.addTask(
-                        title: result["title"],
-                        description: result["description"],
-                        status: result["status"],
-                        taskOwner: result["owner"],
-                        timeToFinish: Duration(
-                          days: result["days"],
-                          hours: result["hours"],
-                          minutes: result["minutes"],
-                        ),
-                      );
-                    }
-                  },
+                  child: _isLoading
+                      ? Container(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator(),
+                        )
+                      : Icon(Icons.add),
+                  onPressed: _isLoading
+                      ? () {}
+                      : () async {
+                          final result = await showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) =>
+                                AddTaskBottomSheet(widget.type),
+                          );
+                          if (result != null) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              await taskManager.addTask(
+                                title: result["title"],
+                                description: result["description"],
+                                status: result["status"],
+                                taskOwner: result["owner"],
+                                timeToFinish: Duration(
+                                  days: result["days"],
+                                  hours: result["hours"],
+                                  minutes: result["minutes"],
+                                ),
+                              );
+                            } catch (err) {
+                              print("$err from category_column.dart");
+                            }
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        },
                   color: Colors.white,
                 )
               ],
@@ -148,15 +174,15 @@ class CategoryColumn extends StatelessWidget {
                         : SingleChildScrollView(
                             child: Column(
                               children: taskManager
-                                  .getTasksByStatus(type)
+                                  .getTasksByStatus(widget.type)
                                   .map((task) => TaskCard(task.taskId))
                                   .toList(),
                             ),
                           );
                   },
-                  onWillAccept: (task) => type != task.status,
+                  onWillAccept: (task) => widget.type != task.status,
                   onAccept: (task) =>
-                      taskManager.changeTaskStatus(task.taskId, type),
+                      taskManager.changeTaskStatus(task.taskId, widget.type),
                 ),
               ),
             ),

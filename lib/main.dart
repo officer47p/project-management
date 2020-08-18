@@ -59,7 +59,7 @@ class HomePage extends StatelessWidget {
                 CustomAppBar(padding: EdgeInsets.only(bottom: 10)),
                 Expanded(child: LayoutBuilder(
                   builder: (context, constraints) {
-                    print(constraints.maxHeight);
+                    // print(constraints.maxHeight);
                     return Container(
                       width: double.infinity,
                       height: constraints.maxHeight,
