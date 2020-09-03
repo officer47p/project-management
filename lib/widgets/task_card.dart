@@ -103,11 +103,8 @@ class _TaskCardState extends State<TaskCard> {
                                             status: result["status"],
                                             taskId: task.taskId,
                                             taskOwner: result["owner"],
-                                            timeToFinish: Duration(
-                                              days: result["days"],
-                                              hours: result["hours"],
-                                              minutes: result["minutes"],
-                                            ),
+                                            timeToFinish:
+                                                result["timeToFinish"],
                                           );
                                         } catch (err) {
                                           print(err);
@@ -162,59 +159,61 @@ class _TaskCardState extends State<TaskCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              "Task Owner:",
-                              style: TextStyle(
-                                color: Colors.black.withOpacity(0.6),
-                                fontFamily: "Ubuntu",
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                            child: Container(
-                                padding: EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                    color: Colors.orange.withOpacity(0.5),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Consumer<Auth>(
-                                  builder: (context, value, child) => Text(
-                                    value != null
-                                        ? value.userEmail != null
-                                            ? value.userEmail.split("@")[0]
-                                            : ""
-                                        : "",
-                                    style: TextStyle(
-                                      color: Colors.black.withOpacity(0.6),
-                                      fontFamily: "Ubuntu",
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                )),
-                          )
-                        ],
+                    Text(
+                      "End Date:",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Chip(
-                      avatar: Icon(
-                        Icons.timelapse,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        timeLeftString(task),
+                    Expanded(
+                      child: Text(
+                        task.timeToFinish
+                            .toString()
+                            .replaceAll("-", "/")
+                            .split(".")[0],
+                        textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: "Ubuntu",
+                            color: Colors.black,
+                            fontFamily: "Ubuntu",
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Time Left:",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Ubuntu",
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Chip(
+                          avatar: Icon(
+                            Icons.timelapse,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            timeLeftString(task),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "Ubuntu",
+                            ),
+                          ),
+                          backgroundColor: statusColor(task.status),
                         ),
                       ),
-                      backgroundColor: statusColor(task.status),
                     )
                   ],
                 ),
@@ -258,7 +257,7 @@ class _TaskCardState extends State<TaskCard> {
     final task = Provider.of<TaskManager>(context).getSingleTask(widget.taskId);
     return LayoutBuilder(
       builder: (context, constraints) {
-        print(constraints.maxWidth);
+        // print(constraints.maxWidth);
         final padding = const EdgeInsets.all(10);
         return Padding(
           padding: padding,
@@ -298,3 +297,42 @@ class _TaskCardState extends State<TaskCard> {
     );
   }
 }
+
+// Row(
+//   children: [
+//     Flexible(
+//       child: Text(
+//         "Task Owner:",
+//         style: TextStyle(
+//           color: Colors.black.withOpacity(0.6),
+//           fontFamily: "Ubuntu",
+//           fontSize: 15,
+//         ),
+//       ),
+//     ),
+//     SizedBox(
+//       width: 10,
+//     ),
+//     Flexible(
+//       child: Container(
+//           padding: EdgeInsets.all(4),
+//           decoration: BoxDecoration(
+//               color: Colors.orange.withOpacity(0.5),
+//               borderRadius: BorderRadius.circular(10)),
+//           child: Consumer<Auth>(
+//             builder: (context, value, child) => Text(
+//               value != null
+//                   ? value.userEmail != null
+//                       ? value.userEmail.split("@")[0]
+//                       : ""
+//                   : "",
+//               style: TextStyle(
+//                 color: Colors.black.withOpacity(0.6),
+//                 fontFamily: "Ubuntu",
+//                 fontSize: 15,
+//               ),
+//             ),
+//           )),
+//     )
+//   ],
+// ),

@@ -68,7 +68,6 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     if (!_isInited) {
       fetch();
-
       _isInited = true;
     }
     super.didChangeDependencies();
@@ -87,7 +86,7 @@ class _HomePageState extends State<HomePage> {
     try {
       await Provider.of<TaskManager>(context).fetchData();
     } catch (err) {
-      print("FROM MAIN SCREEN: $err");
+      print("$err, from main screen");
     }
     setState(() {
       _isLoading = false;
@@ -96,9 +95,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(AppBar(
-      title: Text("Task Flow"),
-    ).preferredSize.height);
     return Scaffold(
       body: Stack(
         children: [

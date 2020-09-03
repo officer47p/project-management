@@ -51,9 +51,19 @@ class Auth extends ChangeNotifier {
       _authToken = authData[1];
       _userEmail = authData[2];
       expiresIn = DateTime.parse(authData[3]);
+      if (DateTime.now().isBefore(expiresIn)) {
+        secsToExpire = expiresIn.difference(DateTime.now());
+      } else {
+        _userId = null;
+        _authToken = null;
+        _userEmail = null;
+        expiresIn = null;
+        secsToExpire = null;
+      }
       notifyListeners();
     } catch (err) {
-      print(err);
+      // print(
+      //     "From auth.dart, where I want to load the credintials from the local storage: ${err}");
       return false;
     }
   }
@@ -63,7 +73,10 @@ class Auth extends ChangeNotifier {
     _authToken = null;
     _userEmail = null;
     expiresIn = null;
-    // this.autoLogOutTimer.cancel();
+    secsToExpire = null;
+    // print("Trying to cancel autoLogOutTimer");
+    autoLogOutTimer.cancel();
+    // print("Trying to cancel task manger timer");
     taskManagerTimer.cancel();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -75,7 +88,9 @@ class Auth extends ChangeNotifier {
     if (autoLogOutTimer != null) {
       autoLogOutTimer.cancel();
     }
+    // print("Called setAutoLogOut");
     autoLogOutTimer = Timer(secsToExpire, () => logOut(taskManagerTimer));
+    // print("This is the timer: $autoLogOutTimer");
   }
 
   Future<void> signUp(String email, String password) async {

@@ -58,7 +58,7 @@ class _CategoryColumnState extends State<CategoryColumn> {
 
   bool isTasksListEmpty(TaskManager tm) {
     if (widget.type == TaskStatus.Open) {
-      print("###################################$tm.openTasks.isEmpty");
+      // print("###################################$tm.openTasks.isEmpty");
       return tm.openTasks.isEmpty;
     } else if (widget.type == TaskStatus.InProgress) {
       return tm.inProgressTasks.isEmpty;
@@ -123,14 +123,10 @@ class _CategoryColumnState extends State<CategoryColumn> {
                                 description: result["description"],
                                 status: result["status"],
                                 taskOwner: result["owner"],
-                                timeToFinish: Duration(
-                                  days: result["days"],
-                                  hours: result["hours"],
-                                  minutes: result["minutes"],
-                                ),
+                                timeToFinish: result["timeToFinish"],
                               );
                             } catch (err) {
-                              print("$err from category_column.dart");
+                              print("$err from Category Column.");
                             }
                             setState(() {
                               _isLoading = false;
@@ -159,6 +155,9 @@ class _CategoryColumnState extends State<CategoryColumn> {
                 ),
                 child: DragTarget<Task>(
                   builder: (context, candidateData, rejectedData) {
+                    final tasks = taskManager.getTasksByStatus(widget.type);
+                    tasks.sort((a, b) => a.timeToFinish.millisecondsSinceEpoch
+                        .compareTo(b.timeToFinish.millisecondsSinceEpoch));
                     return isTasksListEmpty(taskManager)
                         ? Padding(
                             padding: const EdgeInsets.all(10.0),
@@ -174,8 +173,7 @@ class _CategoryColumnState extends State<CategoryColumn> {
                           )
                         : SingleChildScrollView(
                             child: Column(
-                              children: taskManager
-                                  .getTasksByStatus(widget.type)
+                              children: tasks
                                   .map((task) => TaskCard(task.taskId))
                                   .toList(),
                             ),

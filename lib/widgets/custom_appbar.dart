@@ -32,28 +32,86 @@ class CustomAppBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: Consumer<TaskManager>(
-                  builder: (context, value, child) => Text(
-                    "${DateTime.now().hour} : ${DateTime.now().minute} : ${DateTime.now().second}",
-                    style: TextStyle(
-                      fontSize: 30,
+                  builder: (context, value, child) {
+                    final _now = DateTime.now();
+                    TextStyle _tStyle = TextStyle(
+                      fontSize: 18,
                       fontFamily: "Ubuntu",
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                    );
+                    return RichText(
+                      text: TextSpan(
+                        style: _tStyle.copyWith(color: Colors.blue),
+                        text: "Date: ",
+                        children: [
+                          TextSpan(
+                            text: "${_now.year}/${_now.month}/${_now.day}   ",
+                            style: _tStyle.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "Time: ",
+                            style: _tStyle.copyWith(color: Colors.blue),
+                          ),
+                          TextSpan(
+                            text:
+                                "${_now.hour.toString().padLeft(2, '0')} : ${_now.minute.toString().padLeft(2, '0')} : ${_now.second.toString().padLeft(2, '0')}",
+                            style: _tStyle.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
             Expanded(
-              child: Text(
-                "Task ~ Flow",
+              child: RichText(
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: "RubikMonoOne",
-                  color: Colors.black,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 25,
-                ),
+                text: TextSpan(text: "", children: [
+                  TextSpan(
+                    text: "Task",
+                    style: TextStyle(
+                        fontFamily: "RubikMonoOne",
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 25,
+                        shadows: [
+                          Shadow(
+                            color: Colors.pink,
+                            blurRadius: 6,
+                          ),
+                        ]),
+                  ),
+                  TextSpan(
+                    text: " ~ ",
+                    style: TextStyle(
+                      fontFamily: "RubikMonoOne",
+                      color: Colors.black,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 25,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "Flow",
+                    style: TextStyle(
+                      fontFamily: "RubikMonoOne",
+                      color: Colors.black,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 25,
+                      shadows: [
+                        Shadow(
+                          color: Colors.purple,
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                  )
+                ]),
               ),
             ),
             Expanded(
@@ -77,9 +135,15 @@ class CustomAppBar extends StatelessWidget {
                       child: Text(
                         "Log Out",
                         style: TextStyle(
-                          fontFamily: "Ubuntu",
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontFamily: "Ubuntu",
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.5),
+                                offset: Offset(0, 0),
+                                blurRadius: 5,
+                              )
+                            ]),
                       ),
                       onPressed: () async {
                         final taskManager =

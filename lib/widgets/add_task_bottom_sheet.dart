@@ -15,31 +15,42 @@ class AddTaskBottomSheet extends StatefulWidget {
 
 class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  int _minutes;
-  int _hours;
-  int _days;
+  int _minute;
+  int _hour;
+  int _day;
+  int _month;
+  int _year;
+  int _m;
+  int _h;
+  int _d;
+  int _M;
+  int _y;
   Map task = {};
 
   @override
   void initState() {
     if (widget.preLoadedTask != null) {
-      _minutes = int.parse(timeLeftString(widget.preLoadedTask, "m"));
-      _hours = int.parse(timeLeftString(widget.preLoadedTask, "h"));
-      _days = int.parse(timeLeftString(widget.preLoadedTask, "d"));
+      _minute = widget.preLoadedTask.timeToFinish.minute;
+      _hour = widget.preLoadedTask.timeToFinish.hour;
+      _day = widget.preLoadedTask.timeToFinish.day;
+      _month = widget.preLoadedTask.timeToFinish.month;
+      _year = widget.preLoadedTask.timeToFinish.year;
     }
     super.initState();
   }
 
   void _submitForm() {
     final form = _formKey.currentState;
-    print("Dys: $_days Hors: $_hours Min: $_minutes");
+    // print("Dys: $_days Hors: $_hours Min: $_minutes");
     if (form.validate()) {
-      print("Validated");
+      // print("Validated");
       form.save();
       task["status"] = widget.status;
       task["owner"] =
           Provider.of<Auth>(context, listen: false).userEmail.split("@")[0];
-      print(task);
+      task["timeToFinish"] = DateTime.parse(
+          '${_y}-${_M.toString().padLeft(2, '0')}-${_d.toString().padLeft(2, '0')}T${_h.toString().padLeft(2, '0')}:${_m.toString().padLeft(2, '0')}:00.000');
+      // print(task);
       Navigator.pop(context, task);
     }
     // if (form.validate()) {
@@ -72,6 +83,25 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
       }
     }
     // "${totalDays > 0 ? 'd:${totalDays} ' : ''}${totalHours > 0 ? 'h:${totalHours} ' : ''}${totalMins > 0 ? 'm:${totalMins}' : ''}${task.timeToFinish.difference(_now).inMinutes <= 0 ? 'time\'s up!' : ''}";
+  }
+
+  int maxMonthDays(int monthNum) {
+    if (monthNum == 1 ||
+        monthNum == 3 ||
+        monthNum == 5 ||
+        monthNum == 7 ||
+        monthNum == 8 ||
+        monthNum == 10 ||
+        monthNum == 12) {
+      return 31;
+    } else if (monthNum == 4 ||
+        monthNum == 6 ||
+        monthNum == 9 ||
+        monthNum == 11) {
+      return 30;
+    } else if (monthNum == 2) {
+      return 28;
+    }
   }
 
   @override
@@ -169,138 +199,261 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                     SizedBox(
                       height: 20,
                     ),
-                    TextFormField(
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Ubuntu",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        labelText: "Days Left",
-                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    Container(
+                      width: double.infinity,
+                      child: Text(
+                        "Ends In:",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 30,
+                          fontFamily: "Ubuntu",
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      initialValue: widget.preLoadedTask != null
-                          ? timeLeftString(widget.preLoadedTask, "d")
-                          : "",
-                      onChanged: (value) => _days = int.tryParse(value),
-                      onSaved: (newValue) =>
-                          task["days"] = int.tryParse(newValue) ?? 0,
-                      validator: (value) {
-                        if (value.isNotEmpty) {
-                          if ((_hours == null || _hours <= 0) &&
-                              (_minutes == null || _minutes <= 0)) {
-                            final inputDays = int.tryParse(value);
-                            if (inputDays == null)
-                              return "Please input a valid value";
-                            if (inputDays <= 0)
-                              return "Please input a number greater that 0";
-                            return null;
-                          } else
-                            return null;
-                        }
-                        if ((_hours == null || _hours <= 0) &&
-                            (_minutes == null || _minutes <= 0))
-                          return "Please fill at least one of these fields: Hours or Days to finish";
-                        return null;
-                      },
                     ),
                     SizedBox(
                       height: 20,
                     ),
-                    TextFormField(
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Ubuntu",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                      decoration: InputDecoration(
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        // counter: Icon(Icons.ac_unit),
-                        labelText: "Hours Left",
-                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Ubuntu",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              labelText: "Year",
+                              labelStyle: TextStyle(fontFamily: "Ubuntu"),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            initialValue: widget.preLoadedTask != null
+                                ? _year.toString()
+                                : "",
+                            onSaved: (newValue) => _y = int.parse(newValue),
+                            onChanged: (value) => _year = int.tryParse(value),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Can Not Be Empty.";
+                              } else {
+                                if (int.tryParse(value) == null)
+                                  return "It Must Be A Number.";
+                                else if (int.tryParse(value) <= 0)
+                                  return "It Must Be A.D.";
+                                else if (int.tryParse(value) >= 3000)
+                                  return "Seriously? Will You Be Alive Then?";
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                      initialValue: widget.preLoadedTask != null
-                          ? timeLeftString(widget.preLoadedTask, "h")
-                          : "",
-                      onChanged: (value) => _hours = int.tryParse(value),
-                      onSaved: (newValue) =>
-                          task["hours"] = int.tryParse(newValue) ?? 0,
-                      validator: (value) {
-                        if (value.isNotEmpty) {
-                          if ((_days == null || _days <= 0) &&
-                              (_minutes == null || _minutes <= 0)) {
-                            final inputHours = int.tryParse(value);
-                            if (inputHours == null)
-                              return "Please input a valid value";
-                            if (inputHours <= 0)
-                              return "Please input a number greater that 0";
-                            return null;
-                          } else
-                            return null;
-                        }
-                        if ((_days == null || _days <= 0) &&
-                            (_minutes == null || _minutes <= 0))
-                          return "Please fill at least one of these fields: Hours or Days to finish";
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Ubuntu",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                      decoration: InputDecoration(
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        // counter: Icon(Icons.ac_unit),
-                        labelText: "Minutes Left",
-                        labelStyle: TextStyle(fontFamily: "Ubuntu"),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            ":",
+                            style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: 40,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
-                      ),
-                      initialValue: widget.preLoadedTask != null
-                          ? timeLeftString(widget.preLoadedTask, "m")
-                          : "",
-                      onChanged: (value) => _minutes = int.tryParse(value),
-                      onSaved: (newValue) =>
-                          task["minutes"] = int.tryParse(newValue) ?? 0,
-                      validator: (value) {
-                        if (value.isNotEmpty) {
-                          if ((_days == null || _days <= 0) &&
-                              (_hours == null || _hours <= 0)) {
-                            final inputMinutes = int.tryParse(value);
-                            if (inputMinutes == null)
-                              return "Please input a valid value";
-                            if (inputMinutes <= 0)
-                              return "Please input a number greater that 0";
-                            return null;
-                          } else
-                            return null;
-                        }
-                        if ((_days == null || _days <= 0) &&
-                            (_hours == null || _hours <= 0))
-                          return "Please fill at least one of these fields: Hours or Days or Minutes to finish";
-                        return null;
-                      },
+                        Expanded(
+                          child: TextFormField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Ubuntu",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              // counter: Icon(Icons.ac_unit),
+                              labelText: "Month",
+                              labelStyle: TextStyle(fontFamily: "Ubuntu"),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            initialValue: widget.preLoadedTask != null
+                                ? _month.toString()
+                                : "",
+                            onSaved: (newValue) => _M = int.parse(newValue),
+                            onChanged: (value) => _month = int.tryParse(value),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Can Not Be Empty.";
+                              } else {
+                                if (int.tryParse(value) == null)
+                                  return "It Must Be A Number.";
+                                else if (int.tryParse(value) <= 0)
+                                  return "It Must Be Between 1 Or 12.";
+                                else if (int.tryParse(value) >= 13)
+                                  return "It Must Be Between 1 Or 12.";
+                              }
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            ":",
+                            style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: 40,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Ubuntu",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              // counter: Icon(Icons.ac_unit),
+                              labelText: "Day",
+                              labelStyle: TextStyle(fontFamily: "Ubuntu"),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            initialValue: widget.preLoadedTask != null
+                                ? _day.toString()
+                                : "",
+                            onSaved: (newValue) => _d = int.parse(newValue),
+                            onChanged: (value) => _day = int.tryParse(value),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Can Not Be Empty.";
+                              } else {
+                                if (int.tryParse(value) == null) {
+                                  return "It Must Be A Number.";
+                                } else {
+                                  if (_month != null) {
+                                    if (int.tryParse(value) <= 0)
+                                      return "It Must Be Between 1 Or ${maxMonthDays(_month)}.";
+                                    else if (int.tryParse(value) >=
+                                        maxMonthDays(_month))
+                                      return "It Must Be Between 1 Or ${maxMonthDays(_month)}.";
+                                  }
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            ":",
+                            style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: 40,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Ubuntu",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              // counter: Icon(Icons.ac_unit),
+                              labelText: "Hour",
+                              labelStyle: TextStyle(fontFamily: "Ubuntu"),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            initialValue: widget.preLoadedTask != null
+                                ? _hour.toString()
+                                : "",
+                            onSaved: (newValue) => _h = int.parse(newValue),
+                            onChanged: (value) => _hour = int.tryParse(value),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Can Not Be Empty.";
+                              } else {
+                                if (int.tryParse(value) == null)
+                                  return "It Must Be A Number.";
+                                else if (int.tryParse(value) < 0)
+                                  return "It Must Be Between 0 Or 23.";
+                                else if (int.tryParse(value) >= 24)
+                                  return "It Must Be Between 0 Or 23.";
+                              }
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            ":",
+                            style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: 40,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Ubuntu",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              // counter: Icon(Icons.ac_unit),
+                              labelText: "Minute",
+                              labelStyle: TextStyle(fontFamily: "Ubuntu"),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            initialValue: widget.preLoadedTask != null
+                                ? _minute.toString()
+                                : "",
+                            onSaved: (newValue) => _m = int.parse(newValue),
+                            onChanged: (value) => _minute = int.tryParse(value),
+                            onFieldSubmitted: (value) => _submitForm(),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Can Not Be Empty.";
+                              } else {
+                                if (int.tryParse(value) == null)
+                                  return "It Must Be A Number.";
+                                else if (int.tryParse(value) < 0)
+                                  return "It Must Be Between 0 Or 59.";
+                                else if (int.tryParse(value) >= 60)
+                                  return "It Must Be Between 0 Or 59.";
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(
                       height: 20,

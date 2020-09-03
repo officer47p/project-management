@@ -36,26 +36,7 @@ class TaskManager extends ChangeNotifier {
   Timer timer;
   Function setAutoLogOut;
 
-  List<Task> _tasks = [
-    // Task(
-    //   taskId: "dnsj",
-    //   title: "Check the Documentation",
-    //   description:
-    //       "Check the Documentation and make sure that all the parameters are placed correctly",
-    //   status: TaskStatus.Open,
-    //   taskOwner: "Parsa",
-    //   timeToFinish: DateTime.now().add(Duration(hours: 1, minutes: 30)),
-    // ),
-    // Task(
-    //   taskId: "jjbkbk",
-    //   title: "Check the Documentation",
-    //   description:
-    //       "Check the Documentation and make sure that all the parameters are placed correctly",
-    //   status: TaskStatus.Open,
-    //   taskOwner: "Parsa",
-    //   timeToFinish: DateTime.now().add(Duration(hours: 0)),
-    // )
-  ];
+  List<Task> _tasks = [];
 
   List<Task> get tasks {
     return [..._tasks];
@@ -82,12 +63,12 @@ class TaskManager extends ChangeNotifier {
   }
 
   void tick(Timer t) {
-    print("Called Tick");
+    // print("Called Tick");
     notifyListeners();
   }
 
   TaskStatus stringToTaskStatus(String stat) {
-    print(stat);
+    // print(stat);
     if (stat == "open") {
       return TaskStatus.Open;
     } else if (stat == "inProgress") {
@@ -107,11 +88,11 @@ class TaskManager extends ChangeNotifier {
       res = await http.get(
           '${dbTasksUrl}?auth=${authToken}&orderBy="userId"&equalTo="${userId}"');
       parsedRes = json.decode(res.body);
-      print(parsedRes);
+      // print(parsedRes);
       if (parsedRes != null) {
         _tasks = [];
         parsedRes.forEach((key, value) {
-          print(value["status"]);
+          // print(value["status"]);
           _tasks.add(
             Task(
               title: value["title"],
@@ -125,11 +106,13 @@ class TaskManager extends ChangeNotifier {
         });
       }
     } catch (err) {
-      print(err);
+      // print("From task_manger.dart: $err");
       throw err;
     }
     this.timer = Timer.periodic(Duration(seconds: 1), tick);
+    // print("Calling setAutoLogOut");
     setAutoLogOut(timer);
+    // print("After calling set auto logout");
     notifyListeners();
   }
 
@@ -137,10 +120,9 @@ class TaskManager extends ChangeNotifier {
     String taskOwner,
     String title,
     String description,
-    Duration timeToFinish,
+    DateTime timeToFinish,
     TaskStatus status,
   }) async {
-    final _now = DateTime.now();
     http.Response response;
     String taskId;
     try {
@@ -153,7 +135,7 @@ class TaskManager extends ChangeNotifier {
             "description": description,
             "taskOwner": taskOwner,
             "status": statusToString(status),
-            "timeToFinish": _now.add(timeToFinish).toIso8601String(),
+            "timeToFinish": timeToFinish.toIso8601String(),
           },
         ),
       );
@@ -165,14 +147,14 @@ class TaskManager extends ChangeNotifier {
       throw err;
     }
 
-    print("Task Id: $taskId");
+    // print("Task Id: $taskId");
 
     _tasks.add(
       Task(
         taskOwner: taskOwner,
         title: title,
         description: description,
-        timeToFinish: _now.add(timeToFinish),
+        timeToFinish: timeToFinish,
         status: status,
         taskId: taskId,
       ),
@@ -184,7 +166,7 @@ class TaskManager extends ChangeNotifier {
     String taskOwner,
     String title,
     String description,
-    Duration timeToFinish,
+    DateTime timeToFinish,
     TaskStatus status,
     String taskId,
   }) async {
@@ -199,19 +181,19 @@ class TaskManager extends ChangeNotifier {
             "description": description,
             "taskOwner": taskOwner,
             "status": statusToString(status),
-            "timeToFinish": _now.add(timeToFinish).toIso8601String(),
+            "timeToFinish": timeToFinish.toIso8601String(),
           },
         ),
       );
-      print(json.decode(response.body));
+      // print(json.decode(response.body));
       if (json.decode(response.body) == null)
         throw Exception("ERROR: Response was empty.");
     } catch (err) {
-      print("${err} READ THISSSSSSSSSSSSSSS");
+      print("${err}");
       throw err;
     }
 
-    print("Task Id: $taskId");
+    // print("Task Id: $taskId");
 
     final taskIndex = _tasks.indexWhere((element) => element.taskId == taskId);
 
@@ -219,7 +201,7 @@ class TaskManager extends ChangeNotifier {
       taskOwner: taskOwner,
       title: title,
       description: description,
-      timeToFinish: _now.add(timeToFinish),
+      timeToFinish: timeToFinish,
       status: status,
       taskId: taskId,
     );

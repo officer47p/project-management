@@ -36,14 +36,14 @@ class _LogInScreenState extends State<LogInScreen>
     setState(() {
       _isLoading = false;
     });
-    print(res);
+    // print(res);
   }
 
   Future<void> authenticate() async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      print(credentials);
+      // print(credentials);
       setState(() {
         errMsg = null;
         _isLoading = true;
@@ -59,7 +59,7 @@ class _LogInScreenState extends State<LogInScreen>
               .signUp(credentials["email"], credentials["password"]);
         }
       } catch (err) {
-        print(err);
+        // print(err);
         setState(
           () {
             errMsg = 'Authentication failed';
